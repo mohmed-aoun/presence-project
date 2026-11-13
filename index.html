@@ -1,0 +1,397 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connexion - Faculté des Langues</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7fc;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    color: #172e53;
+}
+
+.container {
+    width: 100%;
+    max-width: 470px;
+    text-align: center;
+}
+
+/* LOGO */
+.logo {
+    margin-bottom: 25px;
+}
+
+.logo-icon {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #c8a44d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 15px;
+    color: #10458c;
+    font-size: 48px;
+    box-shadow: 0 5px 20px #123e7815;
+}
+
+.logo h1 {
+    font-size: 27px;
+    color: #10458c;
+    margin-bottom: 5px;
+}
+
+.logo h2 {
+    font-size: 20px;
+    color: #385a85;
+    font-weight: 500;
+}
+
+.logo p {
+    font-size: 12px;
+    color: #71809a;
+    margin-top: 10px;
+}
+
+/* LOGIN CARD */
+.login-card {
+    background: white;
+    padding: 35px 30px;
+    border-radius: 20px;
+    border: 1px solid #e1e8f4;
+    box-shadow: 0 15px 45px rgba(28, 62, 112, 0.09);
+    text-align: left;
+}
+
+.card-icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: #10458c;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: -65px auto 20px;
+    border: 5px solid white;
+}
+
+.login-card h3 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #10458c;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #78869d;
+    margin-bottom: 28px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 9px;
+}
+
+.input-box {
+    display: flex;
+    align-items: center;
+    border: 1px solid #d8e1ef;
+    border-radius: 10px;
+    padding: 0 13px;
+    margin-bottom: 20px;
+    height: 50px;
+    transition: 0.2s;
+}
+
+.input-box:focus-within {
+    border-color: #10458c;
+    box-shadow: 0 0 0 3px #10458c12;
+}
+
+.input-box span {
+    font-size: 19px;
+    margin-right: 10px;
+    color: #10458c;
+}
+
+.input-box input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    background: transparent;
+    color: #172e53;
+}
+
+.show-password {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #10458c;
+    font-size: 12px;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0 24px;
+    font-size: 12px;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: normal;
+    margin: 0;
+}
+
+.remember input {
+    accent-color: #10458c;
+}
+
+a {
+    color: #10458c;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #10458c;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.login-btn:hover {
+    background: #0b3470;
+    transform: translateY(-1px);
+}
+
+.message {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+.signup {
+    border-top: 1px solid #e8edf5;
+    margin-top: 25px;
+    padding-top: 22px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.footer {
+    font-size: 11px;
+    color: #8b97aa;
+    margin-top: 25px;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 18px;
+    }
+
+    .logo h1 {
+        font-size: 23px;
+    }
+
+    .login-card {
+        padding: 30px 20px;
+    }
+
+    .options {
+        font-size: 11px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- LOGO FACULTE -->
+    <header class="logo">
+        <div class="logo-icon">📚</div>
+
+        <h1>كلية اللغات</h1>
+        <h2>Faculté des Langues</h2>
+
+        <p>
+            Université Abou Bekr Belkaid - Tlemcen
+        </p>
+    </header>
+
+    <!-- LOGIN -->
+    <main class="login-card">
+
+        <div class="card-icon">🎓</div>
+
+        <h3>Connexion</h3>
+
+        <p class="subtitle">
+            Accédez à votre espace universitaire
+        </p>
+
+        <form id="loginForm">
+
+            <label for="email">Adresse e-mail</label>
+
+            <div class="input-box">
+                <span>✉</span>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="exemple@universite.dz"
+                    required
+                >
+            </div>
+
+            <label for="password">Mot de passe</label>
+
+            <div class="input-box">
+                <span>🔒</span>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Votre mot de passe"
+                    minlength="6"
+                    required
+                >
+
+                <button
+                    type="button"
+                    class="show-password"
+                    id="showPassword"
+                >
+                    Afficher
+                </button>
+            </div>
+
+            <div class="options">
+                <label class="remember">
+                    <input type="checkbox" id="remember">
+                    Se souvenir de moi
+                </label>
+
+                <a href="#" id="forgot">
+                    Mot de passe oublié ?
+                </a>
+            </div>
+
+            <button type="submit" class="login-btn">
+                Se connecter →
+            </button>
+
+            <p class="message" id="message"></p>
+
+        </form>
+
+        <div class="signup">
+            Pas encore de compte ?
+            <a href="#" id="signup">
+                Créer un compte
+            </a>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        © 2026 Faculté des Langues - Tlemcen
+    </footer>
+
+</div>
+
+<script>
+const form = document.getElementById("loginForm");
+const password = document.getElementById("password");
+const showPassword = document.getElementById("showPassword");
+const message = document.getElementById("message");
+
+showPassword.addEventListener("click", function () {
+    if (password.type === "password") {
+        password.type = "text";
+        showPassword.textContent = "Masquer";
+    } else {
+        password.type = "password";
+        showPassword.textContent = "Afficher";
+    }
+});
+
+form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const pass = password.value;
+
+    message.style.color = "#d13b4b";
+
+    if (!email || !pass) {
+        message.textContent = "Veuillez remplir tous les champs.";
+        return;
+    }
+
+    if (pass.length < 6) {
+        message.textContent =
+            "Le mot de passe doit contenir au moins 6 caractères.";
+        return;
+    }
+
+    message.style.color = "#15835c";
+    message.textContent =
+        "Informations valides. Connectez cette page à PHP/MySQL pour vous connecter.";
+});
+
+document.getElementById("forgot").addEventListener("click", function (event) {
+    event.preventDefault();
+    message.style.color = "#10458c";
+    message.textContent =
+        "La récupération du mot de passe doit être configurée.";
+});
+
+document.getElementById("signup").addEventListener("click", function (event) {
+    event.preventDefault();
+    message.style.color = "#10458c";
+    message.textContent =
+        "Créez une page d'inscription pour les étudiants et les enseignants.";
+});
+</script>
+
+</body>
+</html>
