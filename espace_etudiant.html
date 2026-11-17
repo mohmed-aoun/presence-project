@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espace Étudiant</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f7fc;
+    color: #1e293b;
+}
+
+header {
+    background: #123b70;
+    color: white;
+    padding: 20px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: bold;
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+    background: #ffffff20;
+    padding: 10px 18px;
+    border-radius: 8px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.welcome {
+    margin-bottom: 30px;
+}
+
+.welcome h1 {
+    font-size: 30px;
+    color: #123b70;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 25px;
+}
+
+.card {
+    background: white;
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: 0 5px 25px #123b7010;
+}
+
+.card h2 {
+    color: #123b70;
+    font-size: 21px;
+    margin-bottom: 25px;
+}
+
+.profile {
+    text-align: center;
+}
+
+.avatar {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #123b70;
+    font-size: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.profile h3 {
+    margin-bottom: 8px;
+}
+
+.badge {
+    display: inline-block;
+    background: #dcfce7;
+    color: #15803d;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
+.info {
+    text-align: left;
+    border-top: 1px solid #e5eaf2;
+    padding: 15px 0;
+}
+
+.info span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.info strong {
+    font-size: 15px;
+}
+
+.scanner {
+    text-align: center;
+}
+
+.scanner p {
+    color: #64748b;
+    line-height: 1.7;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.qr-icon {
+    width: 85px;
+    height: 85px;
+    margin: 0 auto 20px;
+    border: 3px dashed #2563eb;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #2563eb;
+    font-size: 43px;
+}
+
+#reader {
+    width: 100%;
+    max-width: 380px;
+    margin: 15px auto;
+    overflow: hidden;
+}
+
+button {
+    width: 100%;
+    border: none;
+    padding: 14px;
+    margin-top: 10px;
+    border-radius: 9px;
+    background: #2563eb;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.stop {
+    background: #dc2626;
+}
+
+.stop:hover {
+    background: #b91c1c;
+}
+
+#result {
+    display: none;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.success {
+    display: block !important;
+    background: #dcfce7;
+    color: #166534;
+}
+
+.error {
+    display: block !important;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.history {
+    margin-top: 25px;
+}
+
+.history p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+@media(max-width: 750px) {
+    header {
+        padding: 18px 5%;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    .content {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome h1 {
+        font-size: 24px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">🎓 Espace Étudiant</div>
+    <a href="#" onclick="return false">Mon compte</a>
+</header>
+
+<div class="container">
+
+    <div class="welcome">
+        <h1>Bienvenue, Rayane 👋</h1>
+        <p>
+            Gérez votre présence aux cours rapidement
+            en scannant le QR Code de votre enseignant.
+        </p>
+    </div>
+
+    <div class="content">
+
+        <div class="card profile">
+            <div class="avatar">👨‍🎓</div>
+
+            <h3>Rayane Belarbi</h3>
+            <span class="badge">Étudiant actif</span>
+
+            <div class="info">
+                <span>Matricule</span>
+                <strong>20260001</strong>
+            </div>
+
+            <div class="info">
+                <span>Spécialité</span>
+                <strong>Réseaux informatiques</strong>
+            </div>
+
+            <div class="info">
+                <span>Faculté</span>
+                <strong>Faculté des sciences</strong>
+            </div>
+
+            <div class="info">
+                <span>Année universitaire</span>
+                <strong>2026 - 2027</strong>
+            </div>
+        </div>
+
+        <div class="card scanner">
+            <h2>📷 Scanner ma présence</h2>
+
+            <div class="qr-icon">▦</div>
+
+            <p>
+                Placez le QR Code affiché par votre enseignant
+                devant la caméra pour scanner le code.
+            </p>
+
+            <div id="reader"></div>
+
+            <button id="startBtn" onclick="startScanner()">
+                📷 Ouvrir la caméra
+            </button>
+
+            <button id="stopBtn" class="stop"
+                    onclick="stopScanner()" hidden>
+                Arrêter le scanner
+            </button>
+
+            <div id="result" role="status"></div>
+
+            <div class="history">
+                <p>
+                    🔒 Assurez-vous de scanner le code
+                    pendant votre séance de cours.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer>
+    © 2026 Université — Gestion des présences
+</footer>
+
+<script>
+let scanner = null;
+let busy = false;
+
+const result = document.getElementById("result");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+
+function showResult(message, type) {
+    result.className = type;
+    result.textContent = message;
+}
+
+async function startScanner() {
+    if (typeof Html5Qrcode === "undefined") {
+        showResult(
+            "Impossible de charger le scanner. Vérifiez Internet.",
+            "error"
+        );
+        return;
+    }
+
+    try {
+        result.style.display = "none";
+        scanner = new Html5Qrcode("reader");
+
+        await scanner.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: { width: 220, height: 220 }
+            },
+            onScanSuccess,
+            () => {}
+        );
+
+        startBtn.hidden = true;
+        stopBtn.hidden = false;
+
+    } catch (error) {
+        scanner = null;
+        showResult(
+            "Impossible d'ouvrir la caméra. Autorisez son accès et utilisez localhost ou HTTPS.",
+            "error"
+        );
+    }
+}
+
+async function stopScanner() {
+    if (scanner) {
+        try {
+            if (scanner.isScanning) {
+                await scanner.stop();
+            }
+
+            await scanner.clear();
+        } catch (error) {
+            console.log(error);
+        }
+
+        scanner = null;
+    }
+
+    startBtn.hidden = false;
+    stopBtn.hidden = true;
+}
+
+async function onScanSuccess(decodedText) {
+    if (busy) return;
+    busy = true;
+
+    await stopScanner();
+
+    showResult(
+        "✅ QR Code scanné avec succès ! Code détecté : " + decodedText,
+        "success"
+    );
+
+    busy = false;
+}
+</script>
+
+</body>
+</html>

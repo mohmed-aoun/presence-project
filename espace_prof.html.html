@@ -1,0 +1,703 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Professeur</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #123b70;
+            color: white;
+            padding: 22px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        header span {
+            color: #dbeafe;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat, .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #0000000b;
+        }
+
+        .stat h3 {
+            margin: 0 0 12px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .stat p {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .blue { color: #2563eb; }
+        .green { color: #16a34a; }
+        .red { color: #dc2626; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 340px minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            margin-bottom: 22px;
+        }
+
+        h2 {
+            font-size: 19px;
+            margin: 0 0 20px;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0 7px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+            font-size: 14px;
+        }
+
+        button {
+            border: none;
+            padding: 11px 15px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.86;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .success {
+            background: #16803c;
+            color: white;
+        }
+
+        .danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .full {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto;
+            min-height: 150px;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 27px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 12px 0;
+        }
+
+        .notice {
+            background: #eff6ff;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1d4ed8;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filters button.active {
+            background: #123b70;
+            color: white;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th, td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .status {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .present {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .absent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+
+        .small-text {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .excel-container {
+            text-align: right;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .excel-button {
+            background: #16803c;
+            color: white;
+            padding: 13px 20px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 18px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat, .card {
+                padding: 16px;
+            }
+
+            .stat p {
+                font-size: 23px;
+            }
+
+            .excel-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎓 Espace Professeur</h1>
+    <span>Gestion des présences</span>
+</header>
+
+<main class="container">
+
+    <!-- Statistiques -->
+    <section class="stats">
+        <div class="stat">
+            <h3>Total étudiants</h3>
+            <p id="total" class="blue">0</p>
+        </div>
+
+        <div class="stat">
+            <h3>Présents</h3>
+            <p id="presentCount" class="green">0</p>
+        </div>
+
+        <div class="stat">
+            <h3>Absents</h3>
+            <p id="absentCount" class="red">0</p>
+        </div>
+
+        <div class="stat">
+            <h3>Taux de présence</h3>
+            <p id="rate" class="blue">0%</p>
+        </div>
+    </section>
+
+    <div class="layout">
+
+        <!-- QR Code -->
+        <section>
+            <div class="card">
+                <h2>📱 Générer QR Code</h2>
+
+                <label for="module">Module</label>
+                <select id="module">
+                    <option>Administration réseau</option>
+                    <option>Programmation Web</option>
+                    <option>Systèmes distribués</option>
+                    <option>Intelligence artificielle</option>
+                    <option>Bases de données</option>
+                </select>
+
+                <label for="group">Groupe</label>
+                <select id="group">
+                    <option>Groupe 1</option>
+                    <option>Groupe 2</option>
+                    <option>Groupe 3</option>
+                    <option>Groupe 4</option>
+                </select>
+
+                <label for="duration">Durée de validité</label>
+                <select id="duration">
+                    <option value="1">1 minute</option>
+                    <option value="5" selected>5 minutes</option>
+                    <option value="10">10 minutes</option>
+                    <option value="15">15 minutes</option>
+                    <option value="30">30 minutes</option>
+                </select>
+
+                <button class="primary full" onclick="startSession()">
+                    Générer / Renouveler QR Code
+                </button>
+
+                <div id="qrcode"></div>
+
+                <div id="timer" class="timer">05:00</div>
+
+                <p id="sessionMessage" class="small-text" style="text-align:center">
+                    Aucune séance active
+                </p>
+
+                <button class="danger full" onclick="endSession()">
+                    Terminer la séance
+                </button>
+
+                <p class="notice" style="margin-top:18px">
+                    La lecture du QR Code depuis les téléphones des étudiants
+                    nécessite un serveur partagé pour enregistrer automatiquement
+                    les présences.
+                </p>
+            </div>
+        </section>
+
+        <!-- Tableau sans colonne Actions -->
+        <section>
+            <div class="card">
+                <h2>📋 Liste des étudiants</h2>
+
+                <div class="toolbar">
+                    <div class="filters">
+                        <button class="secondary active"
+                                id="filterAll"
+                                onclick="setFilter('all')">
+                            Tous
+                        </button>
+
+                        <button class="secondary"
+                                id="filterPresent"
+                                onclick="setFilter('present')">
+                            Présents
+                        </button>
+
+                        <button class="secondary"
+                                id="filterAbsent"
+                                onclick="setFilter('absent')">
+                            Absents
+                        </button>
+                    </div>
+                </div>
+
+                <p class="small-text">
+                    Liste des étudiants et leur statut de présence.
+                </p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom complet</th>
+                                <th>Matricule</th>
+                                <th>Statut</th>
+                                <th>Heure de présence</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="studentTable"></tbody>
+                    </table>
+                </div>
+
+                <!-- Bouton Excel sous le tableau -->
+                <div class="excel-container">
+                    <button class="excel-button" onclick="downloadExcel()">
+                        📥 Télécharger le tableau Excel
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<script>
+    // Liste de démonstration : à remplacer par les données réelles.
+    const students = [
+        { nom: "Ahmed Benali", matricule: "2026001" },
+        { nom: "Sara Mansouri", matricule: "2026002" },
+        { nom: "Mohamed Amine", matricule: "2026003" },
+        { nom: "Yasmine Boudia", matricule: "2026004" },
+        { nom: "Rayane Belarbi", matricule: "2026005" },
+        { nom: "Lina Haddad", matricule: "2026006" },
+        { nom: "Amir Khelifi", matricule: "2026007" },
+        { nom: "Nour Eddine", matricule: "2026008" }
+    ];
+
+    const attendance = {};
+
+    students.forEach(student => {
+        attendance[student.matricule] = {
+            present: false,
+            heure: ""
+        };
+    });
+
+    let currentFilter = "all";
+    let countdown = null;
+    let endTime = null;
+    let sessionActive = false;
+
+    const $ = id => document.getElementById(id);
+
+    function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    function updateStats() {
+        const total = students.length;
+
+        const present = students.filter(student =>
+            attendance[student.matricule].present
+        ).length;
+
+        const absent = total - present;
+        const rate = total > 0
+            ? Math.round((present / total) * 100)
+            : 0;
+
+        $("total").textContent = total;
+        $("presentCount").textContent = present;
+        $("absentCount").textContent = absent;
+        $("rate").textContent = rate + "%";
+    }
+
+    function renderTable() {
+        const tbody = $("studentTable");
+        tbody.innerHTML = "";
+
+        const filteredStudents = students.filter(student => {
+            const present = attendance[student.matricule].present;
+
+            if (currentFilter === "present") return present;
+            if (currentFilter === "absent") return !present;
+
+            return true;
+        });
+
+        if (filteredStudents.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="empty">
+                        Aucun étudiant dans cette catégorie.
+                    </td>
+                </tr>
+            `;
+            updateStats();
+            return;
+        }
+
+        filteredStudents.forEach(student => {
+            const record = attendance[student.matricule];
+
+            const statusClass = record.present ? "present" : "absent";
+            const statusText = record.present ? "Présent" : "Absent";
+
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td>${escapeHTML(student.nom)}</td>
+                <td>${escapeHTML(student.matricule)}</td>
+                <td>
+                    <span class="status ${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+                <td>${record.heure || "-"}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        updateStats();
+    }
+
+    function setFilter(filter) {
+        currentFilter = filter;
+
+        $("filterAll").classList.toggle("active", filter === "all");
+        $("filterPresent").classList.toggle("active", filter === "present");
+        $("filterAbsent").classList.toggle("active", filter === "absent");
+
+        renderTable();
+    }
+
+    function startSession() {
+        if (countdown !== null) {
+            clearInterval(countdown);
+            countdown = null;
+        }
+
+        const moduleName = $("module").value;
+        const groupName = $("group").value;
+        const duration = Number($("duration").value);
+
+        endTime = Date.now() + duration * 60 * 1000;
+        sessionActive = true;
+
+        // Réinitialiser les présences pour la nouvelle séance.
+        students.forEach(student => {
+            attendance[student.matricule] = {
+                present: false,
+                heure: ""
+            };
+        });
+
+        $("qrcode").innerHTML = "";
+
+        if (typeof QRCode === "undefined") {
+            $("sessionMessage").textContent =
+                "Impossible de charger QR Code. Vérifie ta connexion Internet.";
+            sessionActive = false;
+            return;
+        }
+
+        const qrData = JSON.stringify({
+            sessionId: "SEANCE-" + Date.now(),
+            module: moduleName,
+            groupe: groupName,
+            expiration: endTime
+        });
+
+        new QRCode($("qrcode"), {
+            text: qrData,
+            width: 180,
+            height: 180,
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        $("sessionMessage").textContent =
+            "Séance active : " + moduleName + " — " + groupName;
+
+        countdown = setInterval(updateTimer, 1000);
+        updateTimer();
+        renderTable();
+    }
+
+    function updateTimer() {
+        if (!sessionActive || endTime === null) return;
+
+        const remaining = Math.max(
+            0,
+            Math.floor((endTime - Date.now()) / 1000)
+        );
+
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+
+        $("timer").textContent =
+            String(minutes).padStart(2, "0") + ":" +
+            String(seconds).padStart(2, "0");
+
+        if (remaining <= 0) {
+            endSession("La durée du QR Code est expirée.");
+        }
+    }
+
+    function endSession(message = "Séance terminée.") {
+        sessionActive = false;
+        endTime = null;
+
+        if (countdown !== null) {
+            clearInterval(countdown);
+            countdown = null;
+        }
+
+        $("timer").textContent = "00:00";
+        $("sessionMessage").textContent = message;
+        $("qrcode").innerHTML = "";
+    }
+
+    // Exporter tous les étudiants en fichier Excel .xlsx
+    function downloadExcel() {
+        if (typeof XLSX === "undefined") {
+            alert(
+                "La bibliothèque Excel n'est pas chargée. Vérifie ta connexion Internet puis réessaie."
+            );
+            return;
+        }
+
+        const data = students.map(student => {
+            const record = attendance[student.matricule];
+
+            return {
+                "Nom complet": student.nom,
+                "Matricule": student.matricule,
+                "Module": $("module").value,
+                "Groupe": $("group").value,
+                "Statut": record.present ? "Présent" : "Absent",
+                "Heure de présence": record.heure || "-"
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(data);
+
+        worksheet["!cols"] = [
+            { wch: 25 },
+            { wch: 16 },
+            { wch: 30 },
+            { wch: 15 },
+            { wch: 18 },
+            { wch: 22 }
+        ];
+
+        worksheet["!autofilter"] = {
+            ref: "A1:F" + (data.length + 1)
+        };
+
+        const workbook = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            worksheet,
+            "Liste des presences"
+        );
+
+        const date = new Date().toISOString().slice(0, 10);
+
+        XLSX.writeFile(
+            workbook,
+            "Liste_Presences_" + date + ".xlsx"
+        );
+    }
+
+    renderTable();
+</script>
+
+</body>
+</html>
