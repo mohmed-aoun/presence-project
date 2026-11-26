@@ -9,7 +9,7 @@ cd server
 npm install
 cp .env.example .env        # then set JWT_SECRET to a long random string
 npm run seed                # test users: admin/admin123, prof1/prof123, ETU001..ETU010/etu123
-JWT_SECRET=your-secret npm start    # http://localhost:3000 (also serves the HTML pages)
+npm start                   # http://localhost:3000 (also serves the HTML pages)
 ```
 Test logins are for TEST ONLY.
 
