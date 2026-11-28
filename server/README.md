@@ -28,5 +28,5 @@ history, CSV export, admin class-list paste.
 - Student: `POST /api/student/scan` ({ token }), `GET /api/student/history`
 
 ## Not done yet
-- The HTML pages still use localStorage / fake data; they need to call these endpoints (frontend, with partner).
 - HTTPS (phone cameras only scan on https), login rate limiting, Arabic/English UI.
+- Edit/delete users and classes, password reset.

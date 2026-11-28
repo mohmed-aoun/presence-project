@@ -4,7 +4,7 @@ A web platform for taking class attendance with QR codes. Administrators set up 
 
 Built for the Faculté des Langues (Université Abou Bekr Belkaid, Tlemcen). The interface is in French, with the data model ready for Arabic / French / English.
 
-> **Status: prototype.** The backend (API, database, QR security, tests) is complete and working. The HTML pages are still static mock-ups that run on fake data and are **not yet connected to the API** (see [Roadmap](#roadmap)).
+> **Status: working prototype.** The backend (API, database, QR security, tests) and all four pages are connected and work end to end: admin setup, teacher session with a rotating QR code, student scan, live attendance list, manual marking, history and CSV export. What's left before real-world use is HTTPS, rate limiting and translations (see [Roadmap](#roadmap)).
 
 ---
 
@@ -14,7 +14,7 @@ There are three roles, each with its own space:
 
 | Role | What they do |
 |------|--------------|
-| **Admin** | Creates teacher and student accounts, creates classes, assigns a teacher to each class, and enrolls students (including by pasting a class list). |
+| **Admin** | Creates teacher and student accounts, creates classes, assigns a teacher to each class, and enrolls students by pasting a class list (e.g. copied from Excel). Generated passwords are shown once, with copy and CSV download. |
 | **Teacher** | Sees their own classes, starts an attendance session, displays the rotating QR code, watches students check in live, adds anyone manually (e.g. dead phone), closes the session, and exports attendance to CSV/Excel. |
 | **Student** | Logs in, scans the teacher's QR code with their phone camera, and views their own attendance history. |
 
@@ -54,17 +54,18 @@ Other security choices: passwords hashed with bcrypt; login in an `httpOnly`, `s
 ## Tech stack
 
 - **Backend:** Node.js ≥ 22.13, Express 4, built-in `node:sqlite` (SQLite, single-file database — nothing else to install), `jsonwebtoken`, `bcryptjs`, `cookie-parser`
-- **Frontend:** plain HTML/CSS/JavaScript pages, `qrcodejs` (teacher QR display), `html5-qrcode` (student camera scanner), SheetJS (Excel export in the mock-up)
+- **Frontend:** plain HTML/CSS/JavaScript pages (no build step), `qrcodejs` (teacher QR display) and `html5-qrcode` (student camera scanner), both loaded from a CDN
 - **Tests:** Node's built-in test runner (`node --test`)
 
 ## Project structure
 
 ```
 presence-project/
-├── index.html              Login page (mock-up)
-├── admin.html              Admin dashboard: students, teachers, schedule (mock-up, localStorage)
-├── espace_prof.html.html   Teacher space: QR generation, live list, Excel export (mock-up)
-├── espace_etudiant.html    Student space: camera QR scanner (mock-up)
+├── index.html              Login page (matricule / username + password, redirects by role)
+├── admin.html              Admin space: classes, users, teacher assignment, class lists
+├── espace_prof.html        Teacher space: start a session, rotating QR, live list, manual marking, CSV export
+├── espace_etudiant.html    Student space: camera QR scanner, attendance history
+├── shared.js               Shared helpers: API calls, role guard, French error messages
 └── server/
     ├── .env.example        Configuration template
     ├── README.md           Server-specific notes
@@ -176,18 +177,18 @@ All endpoints speak JSON and authenticate with the login cookie. Errors look lik
 
 ## Roadmap
 
-**Frontend (next step)**
-- Connect the HTML pages to the API. Right now they use `localStorage` or hard-coded demo data instead:
-  - `index.html` — validates the form but doesn't log in; should call `POST /api/login` and redirect by role (and use the matricule/username instead of an e-mail field).
-  - `admin.html` — manages students, teachers and a timetable in the browser only; should use the `/api/admin/*` endpoints.
-  - `espace_prof.html.html` — generates a QR containing local data and a fake student list; should create a real session and display the rotating token from `/api/teacher/sessions/:id/qr`, with the live list from `/attendance`. (The filename also has a doubled `.html.html` extension that should be fixed.)
-  - `espace_etudiant.html` — scans and just displays the decoded text; should send it to `POST /api/student/scan` and show the history.
+**Done**
+- Backend API, database, QR token security and tests
+- All four pages connected to the API (login, admin, teacher, student)
+- The old mock timetable (days, rooms, modules) was removed because the backend has no schedule data; it can come back later if it's wanted
 
 **Before real-world use**
 - Serve over **HTTPS** (phone browsers only allow camera access on HTTPS or localhost) and set `COOKIE_SECURE=true`.
 - Login rate limiting.
-- Arabic / French / English interface (the `language` field already exists per user).
+- Arabic / French / English interface (the `language` field already exists per user; the pages are French only for now).
 - Replace the seed accounts and put real secrets in `.env`.
+- Optional: host the two QR libraries locally instead of using a CDN, so the pages work without internet access to the CDNs.
+- Optional: edit and delete users and classes, password reset, a timetable.
 
 ## License
 
