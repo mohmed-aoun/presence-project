@@ -54,7 +54,7 @@ Other security choices: passwords hashed with bcrypt; login in an `httpOnly`, `s
 ## Tech stack
 
 - **Backend:** Node.js ≥ 22.13, Express 4, built-in `node:sqlite` (SQLite, single-file database — nothing else to install), `jsonwebtoken`, `bcryptjs`, `cookie-parser`
-- **Frontend:** plain HTML/CSS/JavaScript pages (no build step), `qrcodejs` (teacher QR display) and `html5-qrcode` (student camera scanner), both loaded from a CDN
+- **Frontend:** plain HTML/CSS/JavaScript pages (no build step), a bundled MIT QR encoder (`vendor/qrcode-generator.js`) drawn as SVG for the teacher's QR code, and `html5-qrcode` (student camera scanner) loaded from a CDN
 - **Tests:** Node's built-in test runner (`node --test`)
 
 ## Project structure
@@ -66,6 +66,9 @@ presence-project/
 ├── espace_prof.html        Teacher space: start a session, rotating QR, live list, manual marking, CSV export
 ├── espace_etudiant.html    Student space: camera QR scanner, attendance history
 ├── shared.js               Shared helpers: API calls, role guard, French error messages
+├── qr-render.js            renderQr(): draws the QR code as SVG (no canvas)
+├── vendor/                 Bundled third-party code (qrcode-generator, MIT)
+├── render.yaml             One-click deployment blueprint for Render
 └── server/
     ├── .env.example        Configuration template
     ├── README.md           Server-specific notes
@@ -112,6 +115,20 @@ The seed creates one class ("Anglais L2 - Groupe 1") with the ten students enrol
 | `COOKIE_SECURE` | `false` | Set to `true` once the site is served over HTTPS. |
 | `QR_WINDOW_SECONDS` | `25` | How often the QR code changes. |
 | `DB_FILE` | `data/presence.db` | Path of the SQLite database file. |
+| `SEED_PASSWORD` | — | Optional. If set, `npm run seed` / `npm run start:demo` give every test account this password instead of the defaults. |
+
+### Testing on a phone (deploying online)
+
+Phone cameras only work on HTTPS, so the easiest way to test with a real phone is to deploy the app. The repo includes a blueprint for [Render](https://render.com) (free plan, HTTPS included):
+
+1. Sign in to Render with GitHub, choose **New → Blueprint**, and select this repository.
+2. Render reads `render.yaml`, builds the app and gives you an `https://….onrender.com` address.
+3. In the service's **Environment** tab, copy the value of `SEED_PASSWORD`. It is the password of all test accounts: `admin`, `prof1`, `prof2`, `ETU001` … `ETU010`.
+4. Open the address on your laptop (teacher) and on your phone (student).
+
+On the free plan the service sleeps after ~15 minutes without visits (the first load then takes about a minute) and the database is wiped on every restart or redeploy. The test accounts are re-created each time. This is fine for testing, but not for real data. For real use, add a persistent disk or move to a hosted database.
+
+Vercel is not a good fit: it runs short-lived serverless functions with no persistent disk, while this app is a long-running server with a SQLite file.
 
 ### Running the tests
 
@@ -187,7 +204,7 @@ All endpoints speak JSON and authenticate with the login cookie. Errors look lik
 - Login rate limiting.
 - Arabic / French / English interface (the `language` field already exists per user; the pages are French only for now).
 - Replace the seed accounts and put real secrets in `.env`.
-- Optional: host the two QR libraries locally instead of using a CDN, so the pages work without internet access to the CDNs.
+- Optional: also bundle the student scanner library (`html5-qrcode`) instead of loading it from a CDN.
 - Optional: edit and delete users and classes, password reset, a timetable.
 
 ## License
