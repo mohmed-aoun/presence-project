@@ -270,14 +270,16 @@ a:hover {
 
         <form id="loginForm">
 
-            <label for="email">Adresse e-mail</label>
+            <label for="loginId">Matricule / identifiant</label>
 
             <div class="input-box">
-                <span>✉</span>
+                <span>👤</span>
                 <input
-                    type="email"
-                    id="email"
-                    placeholder="exemple@universite.dz"
+                    type="text"
+                    id="loginId"
+                    placeholder="Ex. ETU001"
+                    autocomplete="username"
+                    autocapitalize="off"
                     required
                 >
             </div>
@@ -291,7 +293,7 @@ a:hover {
                     type="password"
                     id="password"
                     placeholder="Votre mot de passe"
-                    minlength="6"
+                    autocomplete="current-password"
                     required
                 >
 
@@ -305,10 +307,7 @@ a:hover {
             </div>
 
             <div class="options">
-                <label class="remember">
-                    <input type="checkbox" id="remember">
-                    Se souvenir de moi
-                </label>
+                <span></span>
 
                 <a href="#" id="forgot">
                     Mot de passe oublié ?
@@ -324,10 +323,7 @@ a:hover {
         </form>
 
         <div class="signup">
-            Pas encore de compte ?
-            <a href="#" id="signup">
-                Créer un compte
-            </a>
+            Les comptes sont créés par l'administration de la faculté.
         </div>
 
     </main>
@@ -338,11 +334,13 @@ a:hover {
 
 </div>
 
+<script src="shared.js"></script>
 <script>
 const form = document.getElementById("loginForm");
 const password = document.getElementById("password");
 const showPassword = document.getElementById("showPassword");
 const message = document.getElementById("message");
+const submitBtn = form.querySelector(".login-btn");
 
 showPassword.addEventListener("click", function () {
     if (password.type === "password") {
@@ -354,42 +352,46 @@ showPassword.addEventListener("click", function () {
     }
 });
 
-form.addEventListener("submit", function (event) {
+// Already logged in? Go straight to the right space.
+App.api("GET", "/api/me")
+    .then(function (me) { location.replace(App.HOME[me.role]); })
+    .catch(function () { /* not logged in: stay here */ });
+
+form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
+    const loginId = document.getElementById("loginId").value.trim();
     const pass = password.value;
 
     message.style.color = "#d13b4b";
 
-    if (!email || !pass) {
+    if (!loginId || !pass) {
         message.textContent = "Veuillez remplir tous les champs.";
         return;
     }
 
-    if (pass.length < 6) {
-        message.textContent =
-            "Le mot de passe doit contenir au moins 6 caractères.";
-        return;
-    }
+    submitBtn.disabled = true;
+    message.style.color = "#10458c";
+    message.textContent = "Connexion en cours…";
 
-    message.style.color = "#15835c";
-    message.textContent =
-        "Informations valides. Connectez cette page à PHP/MySQL pour vous connecter.";
+    try {
+        const user = await App.api("POST", "/api/login", {
+            login_id: loginId,
+            password: pass
+        });
+        location.href = App.HOME[user.role];
+    } catch (err) {
+        message.style.color = "#d13b4b";
+        message.textContent = err.message;
+        submitBtn.disabled = false;
+    }
 });
 
 document.getElementById("forgot").addEventListener("click", function (event) {
     event.preventDefault();
     message.style.color = "#10458c";
     message.textContent =
-        "La récupération du mot de passe doit être configurée.";
-});
-
-document.getElementById("signup").addEventListener("click", function (event) {
-    event.preventDefault();
-    message.style.color = "#10458c";
-    message.textContent =
-        "Créez une page d'inscription pour les étudiants et les enseignants.";
+        "Contactez l'administration de la faculté pour réinitialiser votre mot de passe.";
 });
 </script>
 

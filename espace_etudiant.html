@@ -221,6 +221,31 @@ button:hover {
     line-height: 1.7;
 }
 
+.table-wrapper { width: 100%; overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+
+th, td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    font-size: 14px;
+}
+
+th { background: #f8fafc; color: #475569; }
+
+.status {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.present { background: #dcfce7; color: #166534; }
+.absent { background: #fee2e2; color: #991b1b; }
+.empty { text-align: center; color: #64748b; padding: 22px; }
+
 footer {
     text-align: center;
     padding: 25px;
@@ -254,13 +279,13 @@ footer {
 
 <header>
     <div class="logo">🎓 Espace Étudiant</div>
-    <a href="#" onclick="return false">Mon compte</a>
+    <a href="#" id="logoutLink">Déconnexion</a>
 </header>
 
 <div class="container">
 
     <div class="welcome">
-        <h1>Bienvenue, Rayane 👋</h1>
+        <h1>Bienvenue, <span id="firstName"></span> 👋</h1>
         <p>
             Gérez votre présence aux cours rapidement
             en scannant le QR Code de votre enseignant.
@@ -272,27 +297,17 @@ footer {
         <div class="card profile">
             <div class="avatar">👨‍🎓</div>
 
-            <h3>Rayane Belarbi</h3>
+            <h3 id="fullName">…</h3>
             <span class="badge">Étudiant actif</span>
 
             <div class="info">
                 <span>Matricule</span>
-                <strong>20260001</strong>
+                <strong id="loginId">-</strong>
             </div>
 
             <div class="info">
-                <span>Spécialité</span>
-                <strong>Réseaux informatiques</strong>
-            </div>
-
-            <div class="info">
-                <span>Faculté</span>
-                <strong>Faculté des sciences</strong>
-            </div>
-
-            <div class="info">
-                <span>Année universitaire</span>
-                <strong>2026 - 2027</strong>
+                <span>Présences enregistrées</span>
+                <strong id="presenceSummary">-</strong>
             </div>
         </div>
 
@@ -328,12 +343,27 @@ footer {
         </div>
 
     </div>
+
+    <div class="card" style="margin-top:25px">
+        <h2>🗓️ Mon historique de présence</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr><th>Date</th><th>Cours</th><th>Statut</th></tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="3" class="empty">Chargement…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <footer>
     © 2026 Université — Gestion des présences
 </footer>
 
+<script src="shared.js"></script>
 <script>
 let scanner = null;
 let busy = false;
@@ -342,9 +372,47 @@ const result = document.getElementById("result");
 const startBtn = document.getElementById("startBtn");
 const stopBtn = document.getElementById("stopBtn");
 
+document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    App.logout();
+});
+
 function showResult(message, type) {
     result.className = type;
     result.textContent = message;
+}
+
+async function loadProfile() {
+    const me = await App.requireRole("student");
+    document.getElementById("fullName").textContent = me.full_name;
+    document.getElementById("firstName").textContent = me.full_name.split(" ")[0];
+    document.getElementById("loginId").textContent = me.login_id;
+}
+
+async function loadHistory() {
+    const body = document.getElementById("historyBody");
+    try {
+        const rows = await App.api("GET", "/api/student/history");
+        const present = rows.filter(function (r) { return r.present; }).length;
+        document.getElementById("presenceSummary").textContent =
+            present + " / " + rows.length + " séance(s)";
+
+        if (rows.length === 0) {
+            body.innerHTML = '<tr><td colspan="3" class="empty">Aucune séance pour le moment.</td></tr>';
+            return;
+        }
+        body.innerHTML = rows.map(function (r) {
+            const cls = r.present ? "present" : "absent";
+            const label = r.present
+                ? "Présent" + (r.method === "manual" ? " (manuel)" : "")
+                : "Absent";
+            return "<tr><td>" + App.esc(App.fmtDateTime(r.starts_at)) + "</td><td>" +
+                App.esc(r.class_name) + '</td><td><span class="status ' + cls + '">' +
+                label + "</span></td></tr>";
+        }).join("");
+    } catch (err) {
+        body.innerHTML = '<tr><td colspan="3" class="empty">' + App.esc(err.message) + "</td></tr>";
+    }
 }
 
 async function startScanner() {
@@ -358,6 +426,7 @@ async function startScanner() {
 
     try {
         result.style.display = "none";
+        result.className = "";
         scanner = new Html5Qrcode("reader");
 
         await scanner.start(
@@ -401,19 +470,31 @@ async function stopScanner() {
     stopBtn.hidden = true;
 }
 
+// The QR code text is the token. Send it to the server, which decides.
 async function onScanSuccess(decodedText) {
     if (busy) return;
     busy = true;
 
     await stopScanner();
+    showResult("Vérification en cours…", "success");
 
-    showResult(
-        "✅ QR Code scanné avec succès ! Code détecté : " + decodedText,
-        "success"
-    );
-
-    busy = false;
+    try {
+        const r = await App.api("POST", "/api/student/scan", { token: decodedText });
+        if (r.status === "recorded") {
+            showResult("✅ Présence enregistrée : " + r.class_name, "success");
+        } else {
+            showResult("✅ Votre présence était déjà enregistrée : " + r.class_name, "success");
+        }
+        loadHistory();
+    } catch (err) {
+        showResult("❌ " + err.message, "error");
+    } finally {
+        busy = false;
+    }
 }
+
+loadProfile();
+loadHistory();
 </script>
 
 </body>

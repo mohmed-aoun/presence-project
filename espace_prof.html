@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Professeur</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #123b70;
+            color: white;
+            padding: 22px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        header span {
+            color: #dbeafe;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 18px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat, .card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #0000000b;
+        }
+
+        .stat h3 {
+            margin: 0 0 12px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .stat p {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .blue { color: #2563eb; }
+        .green { color: #16a34a; }
+        .red { color: #dc2626; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 340px minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            margin-bottom: 22px;
+        }
+
+        h2 {
+            font-size: 19px;
+            margin: 0 0 20px;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0 7px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+            font-size: 14px;
+        }
+
+        button {
+            border: none;
+            padding: 11px 15px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.86;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .success {
+            background: #16803c;
+            color: white;
+        }
+
+        .danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .full {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto;
+            min-height: 150px;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 27px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 12px 0;
+        }
+
+        .notice {
+            background: #eff6ff;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1d4ed8;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filters button.active {
+            background: #123b70;
+            color: white;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th, td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .status {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .present {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .absent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+
+        .small-text {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .excel-container {
+            text-align: right;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .excel-button {
+            background: #16803c;
+            color: white;
+            padding: 13px 20px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 18px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat, .card {
+                padding: 16px;
+            }
+
+            .stat p {
+                font-size: 23px;
+            }
+
+            .excel-button {
+                width: 100%;
+            }
+        }
+    
+        header .who { display: flex; align-items: center; gap: 14px; }
+        header .who button { background: #ffffff25; color: white; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .mini { padding: 6px 10px; font-size: 12px; }
+        .method { color: #64748b; font-size: 11px; }
+        #qrcode canvas, #qrcode img { max-width: 100%; height: auto; }
+        .csv-link { display: inline-block; text-decoration: none; }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎓 Espace Professeur</h1>
+    <div class="who">
+        <span id="teacherName">Gestion des présences</span>
+        <button id="logoutBtn" type="button">Déconnexion</button>
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="stats">
+        <div class="stat">
+            <h3>Total étudiants</h3>
+            <p id="total" class="blue">0</p>
+        </div>
+        <div class="stat">
+            <h3>Présents</h3>
+            <p id="presentCount" class="green">0</p>
+        </div>
+        <div class="stat">
+            <h3>Absents</h3>
+            <p id="absentCount" class="red">0</p>
+        </div>
+        <div class="stat">
+            <h3>Taux de présence</h3>
+            <p id="rate" class="blue">0%</p>
+        </div>
+    </section>
+
+    <div class="layout">
+
+        <!-- QR Code -->
+        <section>
+            <div class="card">
+                <h2>📱 Séance de présence</h2>
+
+                <label for="classSelect">Classe</label>
+                <select id="classSelect"></select>
+
+                <label for="duration">Durée de la séance</label>
+                <select id="duration">
+                    <option value="5">5 minutes</option>
+                    <option value="10">10 minutes</option>
+                    <option value="15" selected>15 minutes</option>
+                    <option value="30">30 minutes</option>
+                    <option value="60">1 heure</option>
+                </select>
+
+                <button class="primary full" id="startBtn" type="button">
+                    Démarrer la séance
+                </button>
+
+                <div id="qrcode"></div>
+
+                <div id="timer" class="timer">--:--</div>
+
+                <p id="sessionMessage" class="small-text" style="text-align:center">
+                    Aucune séance active
+                </p>
+
+                <button class="danger full" id="endBtn" type="button" disabled>
+                    Terminer la séance
+                </button>
+
+                <p class="notice" style="margin-top:18px">
+                    Le QR Code change toutes les quelques secondes : une capture
+                    d'écran partagée ne fonctionne plus. Les étudiants doivent
+                    scanner le code affiché à l'écran.
+                </p>
+            </div>
+        </section>
+
+        <!-- Liste -->
+        <section>
+            <div class="card">
+                <h2>📋 Liste des étudiants</h2>
+
+                <div class="toolbar">
+                    <div class="filters">
+                        <button class="secondary active" id="filterAll" data-filter="all">Tous</button>
+                        <button class="secondary" id="filterPresent" data-filter="present">Présents</button>
+                        <button class="secondary" id="filterAbsent" data-filter="absent">Absents</button>
+                    </div>
+                </div>
+
+                <p class="small-text">
+                    Mise à jour automatique. Vous pouvez marquer manuellement un étudiant
+                    présent (par exemple si son téléphone ne fonctionne plus).
+                </p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom complet</th>
+                                <th>Matricule</th>
+                                <th>Statut</th>
+                                <th>Heure de présence</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTable"></tbody>
+                    </table>
+                </div>
+
+                <div class="excel-container">
+                    <button class="excel-button" id="exportBtn" type="button">
+                        📥 Télécharger le tableau (Excel / CSV)
+                    </button>
+                    <p class="small-text" style="margin-top:8px">
+                        Toutes les séances de la classe : une ligne par étudiant, P = présent, A = absent.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<script src="shared.js"></script>
+<script>
+    const $ = (id) => document.getElementById(id);
+
+    let classes = [];
+    let session = null;      // { id, classId, endsAt }  (endsAt in unix seconds)
+    let students = [];       // from /attendance
+    let sessionOpen = false;
+    let currentFilter = "all";
+    let qr = null;
+    let qrTimer = null;
+    let pollTimer = null;
+    let tickTimer = null;
+
+    // ---------- helpers ----------
+    function saveSession() {
+        try {
+            if (session) sessionStorage.setItem("presence_session", JSON.stringify(session));
+            else sessionStorage.removeItem("presence_session");
+        } catch (e) { /* ignore */ }
+    }
+
+    function selectedClass() {
+        return classes.find((c) => String(c.id) === $("classSelect").value);
+    }
+
+    function setMessage(text) { $("sessionMessage").textContent = text; }
+
+    function stopTimers() {
+        clearTimeout(qrTimer);
+        clearInterval(pollTimer);
+        clearInterval(tickTimer);
+        qrTimer = pollTimer = tickTimer = null;
+    }
+
+    function clearQr() {
+        $("qrcode").innerHTML = "";
+        qr = null;
+    }
+
+    function setControls() {
+        $("startBtn").disabled = sessionOpen || classes.length === 0;
+        $("endBtn").disabled = !sessionOpen;
+        $("classSelect").disabled = sessionOpen;
+        $("duration").disabled = sessionOpen;
+    }
+
+    // ---------- stats and table ----------
+    function updateStats() {
+        let total, present;
+        if (session) {
+            total = students.length;
+            present = students.filter((s) => s.present).length;
+        } else {
+            const c = selectedClass();
+            total = c ? c.student_count : 0;
+            present = 0;
+        }
+        const rate = total > 0 ? Math.round((present / total) * 100) : 0;
+        $("total").textContent = total;
+        $("presentCount").textContent = present;
+        $("absentCount").textContent = total - present;
+        $("rate").textContent = rate + "%";
+    }
+
+    function renderTable() {
+        const tbody = $("studentTable");
+
+        if (!session) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty">Démarrez une séance pour voir la liste des étudiants.</td></tr>';
+            updateStats();
+            return;
+        }
+
+        const list = students.filter((s) => {
+            if (currentFilter === "present") return s.present;
+            if (currentFilter === "absent") return !s.present;
+            return true;
+        });
+
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty">Aucun étudiant dans cette catégorie.</td></tr>';
+            updateStats();
+            return;
+        }
+
+        tbody.innerHTML = list.map((s) => {
+            const cls = s.present ? "present" : "absent";
+            const label = s.present ? "Présent" : "Absent";
+            const method = s.present && s.method === "manual" ? ' <span class="method">(manuel)</span>' : "";
+            const action = s.present
+                ? ""
+                : '<button class="secondary mini" data-manual="' + s.student_id + '">Marquer présent</button>';
+            return "<tr>" +
+                "<td>" + App.esc(s.full_name) + "</td>" +
+                "<td>" + App.esc(s.login_id) + "</td>" +
+                '<td><span class="status ' + cls + '">' + label + "</span>" + method + "</td>" +
+                "<td>" + App.esc(App.fmtTime(s.scanned_at)) + "</td>" +
+                "<td>" + action + "</td></tr>";
+        }).join("");
+        updateStats();
+    }
+
+    // ---------- talking to the server ----------
+    async function poll() {
+        if (!session) return;
+        try {
+            const r = await App.api("GET", "/api/teacher/sessions/" + session.id + "/attendance");
+            students = r.students;
+            renderTable();
+            if (sessionOpen && !r.open) finishUi("Séance terminée.");
+        } catch (err) {
+            if (err.code === "session_not_found") {
+                session = null; saveSession(); finishUi("Séance introuvable.");
+                students = []; renderTable();
+            }
+        }
+    }
+
+    async function refreshQr() {
+        if (!session || !sessionOpen) return;
+        try {
+            const r = await App.api("GET", "/api/teacher/sessions/" + session.id + "/qr");
+            if (qr) {
+                qr.makeCode(r.token);
+            } else {
+                $("qrcode").innerHTML = "";
+                qr = new QRCode($("qrcode"), {
+                    text: r.token,
+                    width: 240,
+                    height: 240,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
+            // Fetch the next code just after the current one stops being the newest.
+            qrTimer = setTimeout(refreshQr, Math.max(1, r.refresh_in) * 1000 + 300);
+        } catch (err) {
+            if (err.code === "session_closed") {
+                finishUi("Séance terminée.");
+            } else {
+                setMessage(err.message);
+                qrTimer = setTimeout(refreshQr, 3000); // try again
+            }
+        }
+    }
+
+    function tick() {
+        if (!session) return;
+        const remaining = Math.max(0, session.endsAt - Math.floor(Date.now() / 1000));
+        const m = String(Math.floor(remaining / 60)).padStart(2, "0");
+        const s = String(remaining % 60).padStart(2, "0");
+        $("timer").textContent = m + ":" + s;
+        if (remaining <= 0) {
+            finishUi("La durée de la séance est écoulée.");
+            poll();
+        }
+    }
+
+    function beginUi() {
+        sessionOpen = true;
+        stopTimers();
+        clearQr();
+        setControls();
+        const c = classes.find((x) => x.id === session.classId);
+        setMessage("Séance active : " + (c ? c.name : ""));
+        tick();
+        refreshQr();
+        poll();
+        pollTimer = setInterval(poll, 3000);
+        tickTimer = setInterval(tick, 1000);
+    }
+
+    // The session is over: stop the QR, keep the list on screen (manual marking still works).
+    function finishUi(message) {
+        sessionOpen = false;
+        stopTimers();
+        clearQr();
+        $("timer").textContent = "00:00";
+        setMessage(message);
+        setControls();
+    }
+
+    async function startSession() {
+        const c = selectedClass();
+        if (!c) return;
+        $("startBtn").disabled = true;
+        try {
+            const r = await App.api("POST", "/api/teacher/sessions", {
+                class_id: c.id,
+                duration_minutes: Number($("duration").value)
+            });
+            session = { id: r.id, classId: c.id, endsAt: r.ends_at };
+            students = [];
+            saveSession();
+            beginUi();
+        } catch (err) {
+            setMessage(err.message);
+            setControls();
+        }
+    }
+
+    async function endSession() {
+        if (!session) return;
+        $("endBtn").disabled = true;
+        try {
+            await App.api("POST", "/api/teacher/sessions/" + session.id + "/close");
+            finishUi("Séance terminée.");
+            poll();
+        } catch (err) {
+            setMessage(err.message);
+            setControls();
+        }
+    }
+
+    async function markManual(studentId) {
+        if (!session) return;
+        try {
+            await App.api("POST", "/api/teacher/sessions/" + session.id + "/manual", { student_id: studentId });
+            poll();
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    function exportCsv() {
+        const c = selectedClass();
+        if (!c) return;
+        location.href = "/api/teacher/classes/" + c.id + "/export.csv";
+    }
+
+    // ---------- events ----------
+    $("startBtn").addEventListener("click", startSession);
+    $("endBtn").addEventListener("click", endSession);
+    $("exportBtn").addEventListener("click", exportCsv);
+    $("logoutBtn").addEventListener("click", App.logout);
+    $("classSelect").addEventListener("change", () => {
+        session = null; students = []; saveSession();
+        clearQr(); $("timer").textContent = "--:--"; setMessage("Aucune séance active");
+        renderTable();
+    });
+    $("studentTable").addEventListener("click", (e) => {
+        const b = e.target.closest("[data-manual]");
+        if (b) markManual(Number(b.dataset.manual));
+    });
+    document.querySelectorAll("[data-filter]").forEach((b) => {
+        b.addEventListener("click", () => {
+            currentFilter = b.dataset.filter;
+            document.querySelectorAll("[data-filter]").forEach((x) =>
+                x.classList.toggle("active", x === b));
+            renderTable();
+        });
+    });
+
+    // ---------- start ----------
+    (async function init() {
+        const me = await App.requireRole("teacher");
+        $("teacherName").textContent = me.full_name;
+
+        try {
+            classes = await App.api("GET", "/api/teacher/classes");
+        } catch (err) {
+            setMessage(err.message);
+        }
+
+        if (classes.length === 0) {
+            $("classSelect").innerHTML = "<option>Aucune classe assignée</option>";
+            setMessage("Aucune classe ne vous est assignée. Contactez l'administration.");
+        } else {
+            $("classSelect").innerHTML = classes.map((c) =>
+                '<option value="' + c.id + '">' + App.esc(c.name) + " (" + c.student_count + ")</option>"
+            ).join("");
+        }
+        setControls();
+
+        // Page reloaded during a session? Pick it up again.
+        try {
+            const saved = JSON.parse(sessionStorage.getItem("presence_session") || "null");
+            if (saved && classes.some((c) => c.id === saved.classId)) {
+                session = saved;
+                $("classSelect").value = String(saved.classId);
+                try {
+                    const r = await App.api("GET", "/api/teacher/sessions/" + saved.id + "/attendance");
+                    students = r.students;
+                    if (r.open) beginUi();
+                    else { finishUi("Séance terminée."); renderTable(); }
+                } catch (e) { session = null; saveSession(); }
+            }
+        } catch (e) { /* ignore */ }
+
+        renderTable();
+    })();
+</script>
+
+</body>
+</html>
