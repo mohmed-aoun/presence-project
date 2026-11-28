@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Professeur</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <style>
         * {
             box-sizing: border-box;
@@ -294,7 +292,7 @@
         button:disabled { opacity: 0.5; cursor: not-allowed; }
         .mini { padding: 6px 10px; font-size: 12px; }
         .method { color: #64748b; font-size: 11px; }
-        #qrcode canvas, #qrcode img { max-width: 100%; height: auto; }
+        #qrcode svg { max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
         .csv-link { display: inline-block; text-decoration: none; }
     </style>
 </head>
@@ -420,6 +418,8 @@
     </div>
 </main>
 
+<script src="vendor/qrcode-generator.js"></script>
+<script src="qr-render.js"></script>
 <script src="shared.js"></script>
 <script>
     const $ = (id) => document.getElementById(id);
@@ -429,7 +429,6 @@
     let students = [];       // from /attendance
     let sessionOpen = false;
     let currentFilter = "all";
-    let qr = null;
     let qrTimer = null;
     let pollTimer = null;
     let tickTimer = null;
@@ -457,7 +456,6 @@
 
     function clearQr() {
         $("qrcode").innerHTML = "";
-        qr = null;
     }
 
     function setControls() {
@@ -543,17 +541,7 @@
         if (!session || !sessionOpen) return;
         try {
             const r = await App.api("GET", "/api/teacher/sessions/" + session.id + "/qr");
-            if (qr) {
-                qr.makeCode(r.token);
-            } else {
-                $("qrcode").innerHTML = "";
-                qr = new QRCode($("qrcode"), {
-                    text: r.token,
-                    width: 240,
-                    height: 240,
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-            }
+            renderQr($("qrcode"), r.token, 240);
             // Fetch the next code just after the current one stops being the newest.
             qrTimer = setTimeout(refreshQr, Math.max(1, r.refresh_in) * 1000 + 300);
         } catch (err) {

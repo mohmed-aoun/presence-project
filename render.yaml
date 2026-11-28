@@ -1,0 +1,20 @@
+# Render Blueprint: one free web service that runs the whole app (API + pages).
+# Free tier = the database file is wiped when the service restarts or redeploys,
+# so this is for TESTING. start:demo re-creates the test accounts on every start.
+services:
+  - type: web
+    name: presence-project
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm run start:demo
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SEED_PASSWORD      # shared password of ALL test accounts; read it in the Render dashboard
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
